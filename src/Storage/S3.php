@@ -68,7 +68,7 @@ class S3 implements StorageableInterface
     public function remove(array $filePaths)
     {
         if ($filePaths) {
-            $this->s3Client->deleteObjects(['Bucket' => $this->attachedFile->s3_object_config['Bucket'], 'Objects' => $this->getKeys($filePaths)]);
+            $this->s3Client->deleteObjects(['Bucket' => $this->attachedFile->s3_object_config['Bucket'], 'Delete' => ['Objects' => $this->getKeys($filePaths)]]);
         }
     }
 
@@ -83,7 +83,7 @@ class S3 implements StorageableInterface
         $objectConfig = $this->attachedFile->s3_object_config;
         $fileSpecificConfig = ['Key' => $filePath, 'SourceFile' => $file, 'ContentType' => $this->attachedFile->contentType()];
         $mergedConfig = array_merge($objectConfig, $fileSpecificConfig);
-        
+
         $this->ensureBucketExists($mergedConfig['Bucket']);
         $this->s3Client->putObject($mergedConfig);
     }
