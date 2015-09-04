@@ -46,7 +46,15 @@ class S3 implements StorageableInterface
      */
     public function url($styleName)
     {
-        return $this->s3Client->getObjectUrl($this->attachedFile->s3_object_config['Bucket'], $this->path($styleName), null, ['PathStyle' => true]);
+        $url = $this->s3Client->getObjectUrl($this->attachedFile->s3_object_config['Bucket'], $this->path($styleName), null, ['PathStyle' => true]);
+
+        if ($custom = $this->attachedFile->custom_domain) {
+            $url = str_replace('/'.$this->attachedFile->s3_object_config['Bucket'].'/', '/', $url);
+            $bits = parse_url($url);
+            $url = str_replace($bits['host'], $custom, $url);
+        }
+
+        return $url;
     }
 
     /**
