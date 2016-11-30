@@ -1,6 +1,8 @@
-<?php namespace Codesleeve\Stapler\File;
+<?php
 
-interface FileInterface
+namespace Codesleeve\Stapler\Interfaces;
+
+interface File
 {
     /**
      * Return the name of the file.
@@ -27,7 +29,7 @@ interface FileInterface
      * Method for determining whether the uploaded file is
      * an image type.
      *
-     * @return boolean
+     * @return bool
      */
     public function isImage();
 }

@@ -1,12 +1,16 @@
-<?php namespace Codesleeve\Stapler;
+<?php
 
-class Validator
+namespace Codesleeve\Stapler;
+
+use Codesleeve\Stapler\Interfaces\Validator as ValidatorInterface;
+
+class Validator implements ValidatorInterface
 {
     /**
      * Validate the attachment options for an attachment type.
      * A url is required to have either an :id or an :id_partition interpolation.
      *
-     * @param  array $options
+     * @param array $options
      */
     public function validateOptions(array $options)
     {
@@ -18,12 +22,13 @@ class Validator
      * driver is set to 'filesystem'.
      *
      * @throws Exceptions\InvalidUrlOptionException
-     * @param  array $options
+     *
+     * @param array $options
      */
     protected function validateFilesystemOptions(array $options)
     {
-        if (preg_match("/:id\b/", $options['url']) !== 1 && preg_match("/:id_partition\b/", $options['url']) !== 1 && preg_match("/:hash\b/", $options['url']) !== 1) {
-            throw new Exceptions\InvalidUrlOptionException('Invalid Url: an id, id_partition, or hash interpolation is required.', 1);
+        if (preg_match("/:id\b/", $options['url']) !== 1 && preg_match("/:id_partition\b/", $options['url']) !== 1 && preg_match("/:(secure_)?hash\b/", $options['url']) !== 1) {
+            throw new Exceptions\InvalidUrlOptionException('Invalid Url: an id, id_partition, hash, or secure_hash interpolation is required.', 1);
         }
     }
 
@@ -32,7 +37,8 @@ class Validator
      * driver is set to 's3'.
      *
      * @throws Exceptions\InvalidUrlOptionException
-     * @param  array $options
+     *
+     * @param array $options
      */
     protected function validateS3Options(array $options)
     {
