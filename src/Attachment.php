@@ -528,13 +528,25 @@ class Attachment implements AttachmentInterface, JsonSerializable
      */
     protected function flushWrites()
     {
+        // if its an image then we want to process the different file size
         if ($this->uploadedFile->isImage()) {
+            // go through all required sizes
             foreach ($this->queuedForWrite as $style) {
-                $file = $this->resizer->resize($this->uploadedFile, $style);
+                // if there are dimensions
+                if ($style->dimensions) {
+                    // resize the image accordingly
+                    $file = $this->resizer->resize($this->uploadedFile, $style);
+                } else {
+                    // otherwise get the original upload path
+                    $file = $this->uploadedFile->getRealPath();
+                }
 
+                // where we want to store the asset in storeage
                 $filePath = $this->path($style->name);
+                // and do the move
                 $this->move($file, $filePath);
             }
+            // otherwise just move the original file into place
         } else {
             $this->move($this->uploadedFile->getRealPath(), $this->path($this->uploadedFile->getFilename()));
         }
