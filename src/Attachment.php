@@ -2,14 +2,14 @@
 
 namespace Codesleeve\Stapler;
 
+use Codesleeve\Stapler\Factories\File as FileFactory;
 use Codesleeve\Stapler\Interfaces\Attachment as AttachmentInterface;
 use Codesleeve\Stapler\Interfaces\Interpolator as InterpolatorInterface;
 use Codesleeve\Stapler\Interfaces\Resizer as ResizerInterface;
 use Codesleeve\Stapler\Interfaces\Storage as StorageInterface;
 use Codesleeve\Stapler\ORM\StaplerableInterface;
-use Codesleeve\Stapler\Factories\File as FileFactory;
-use JsonSerializable;
 use DateTime;
+use JsonSerializable;
 
 class Attachment implements AttachmentInterface, JsonSerializable
 {
@@ -72,15 +72,15 @@ class Attachment implements AttachmentInterface, JsonSerializable
     /**
      * Constructor method.
      *
-     * @param AttachmentConfig $config
-     * @param InterpolatorInterface     $interpolator
-     * @param ResizerInterface          $resizer
+     * @param AttachmentConfig      $config
+     * @param InterpolatorInterface $interpolator
+     * @param ResizerInterface      $resizer
      */
     public function __construct(AttachmentConfig $config, InterpolatorInterface $interpolator, ResizerInterface $resizer)
     {
-        $this->config = $config;
+        $this->config       = $config;
         $this->interpolator = $interpolator;
-        $this->resizer = $resizer;
+        $this->resizer      = $resizer;
     }
 
     /**
@@ -98,8 +98,7 @@ class Attachment implements AttachmentInterface, JsonSerializable
      * Handle the dynamic retrieval of attachment options.
      * Style options will be converted into a php stcClass.
      *
-     * @param string $optionName
-     *
+     * @param  string  $optionName
      * @return mixed
      */
     public function __get($optionName)
@@ -275,9 +274,8 @@ class Attachment implements AttachmentInterface, JsonSerializable
      * This allows us to call methods on the underlying
      * storage driver directly via the attachment.
      *
-     * @param string $method
-     * @param array  $parameters
-     *
+     * @param  string  $method
+     * @param  array   $parameters
      * @return mixed
      */
     public function __call($method, $parameters)
@@ -292,8 +290,7 @@ class Attachment implements AttachmentInterface, JsonSerializable
     /**
      * Generates the url to an uploaded file (or a resized version of it).
      *
-     * @param string $styleName
-     *
+     * @param  string   $styleName
      * @return string
      */
     public function url($styleName = '')
@@ -309,8 +306,7 @@ class Attachment implements AttachmentInterface, JsonSerializable
      * Generates the file system path to an uploaded file (or a resized version of it).
      * This is used for saving files, etc.
      *
-     * @param string $styleName
-     *
+     * @param  string   $styleName
      * @return string
      */
     public function path($styleName = '')
@@ -400,7 +396,7 @@ class Attachment implements AttachmentInterface, JsonSerializable
 
         foreach ($this->styles as $style) {
             $fileLocation = $this->storage == 'filesystem' ? $this->path('original') : $this->url('original');
-            $file = FileFactory::create($fileLocation);
+            $file         = FileFactory::create($fileLocation);
 
             if ($style->dimensions && $file->isImage()) {
                 $file = $this->resizer->resize($file, $style);
@@ -520,7 +516,7 @@ class Attachment implements AttachmentInterface, JsonSerializable
         foreach ($this->styles as $style) {
             $data[$style->name] = [
                 'path' => $this->path($style->name),
-                'url'  => $this->url($style->name)
+                'url'  => $this->url($style->name),
             ];
         }
 
@@ -532,15 +528,15 @@ class Attachment implements AttachmentInterface, JsonSerializable
      */
     protected function flushWrites()
     {
-        foreach ($this->queuedForWrite as $style) {
-            if ($style->dimensions && $this->uploadedFile->isImage()) {
+        if ($this->uploadedFile->isImage()) {
+            foreach ($this->queuedForWrite as $style) {
                 $file = $this->resizer->resize($this->uploadedFile, $style);
-            } else {
-                $file = $this->uploadedFile->getRealPath();
-            }
 
-            $filePath = $this->path($style->name);
-            $this->move($file, $filePath);
+                $filePath = $this->path($style->name);
+                $this->move($file, $filePath);
+            }
+        } else {
+            $this->move($this->uploadedFile->getRealPath(), $this->path($this->uploadedFile->getFilename()));
         }
 
         $this->queuedForWrite = [];
@@ -597,8 +593,7 @@ class Attachment implements AttachmentInterface, JsonSerializable
     /**
      * Generates the default url if no file attachment is present.
      *
-     * @param string $styleName
-     *
+     * @param  string   $styleName
      * @return string
      */
     protected function defaultUrl($styleName = '')
@@ -613,12 +608,11 @@ class Attachment implements AttachmentInterface, JsonSerializable
     /**
      * Generates the default path if no file attachment is present.
      *
-     * @param string $styleName
-     *
+     * @param  string   $styleName
      * @return string
      */
     protected function defaultPath($styleName = '')
     {
-        return $this->public_path.$this->defaultUrl($styleName);
+        return $this->public_path . $this->defaultUrl($styleName);
     }
 }
