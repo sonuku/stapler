@@ -548,7 +548,7 @@ class Attachment implements AttachmentInterface, JsonSerializable
             }
             // otherwise just move the original file into place
         } else {
-            $this->move($this->uploadedFile->getRealPath(), $this->path($this->uploadedFile->getFilename()));
+            $this->move($this->uploadedFile->getRealPath(), $this->path("original"));
         }
 
         $this->queuedForWrite = [];
