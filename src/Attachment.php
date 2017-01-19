@@ -548,7 +548,17 @@ class Attachment implements AttachmentInterface, JsonSerializable
             }
             // otherwise just move the original file into place
         } else {
-            $this->move($this->uploadedFile->getRealPath(), $this->path("original"));
+            foreach ($this->queuedForWrite as $style) {
+                // if there are dimensions
+                $fileOriginal = $this->uploadedFile->getRealPath();
+                $fileToMove   = sys_get_temp_dir() . '/stapler.' . uniqid();
+                copy($fileOriginal, $fileToMove);
+                // where we want to store the asset in storeage
+                $filePath = $this->path($style->name);
+                // and do the move
+                $this->move($fileToMove, $filePath);
+            }
+            @unlink($fileOriginal);
         }
 
         $this->queuedForWrite = [];
