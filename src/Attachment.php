@@ -528,6 +528,11 @@ class Attachment implements AttachmentInterface, JsonSerializable
      */
     protected function flushWrites()
     {
+        if (!$this->uploadedFile) {
+            $this->queuedForWrite = [];
+            return false;
+        }
+
         // if its an image then we want to process the different file size
         if ($this->uploadedFile->isImage()) {
             // go through all required sizes
